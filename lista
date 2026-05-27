@@ -1,0 +1,311 @@
+import React, { useState } from "react";
+import {
+  CheckCircle,
+  Trash2,
+  Pencil,
+  PlusCircle,
+} from "lucide-react";
+
+export default function App() {
+  const [tarefas, setTarefas] = useState([]);
+  const [novaTarefa, setNovaTarefa] = useState("");
+  const [editandoId, setEditandoId] = useState(null);
+  const [textoEditado, setTextoEditado] = useState("");
+
+  // Adicionar tarefa
+  function adicionarTarefa() {
+    if (novaTarefa.trim() === "") {
+      alert("Digite uma tarefa!");
+      return;
+    }
+
+    const tarefa = {
+      id: Date.now(),
+      texto: novaTarefa,
+      concluida: false,
+    };
+
+    setTarefas([...tarefas, tarefa]);
+    setNovaTarefa("");
+  }
+
+  // Concluir tarefa
+  function concluirTarefa(id) {
+    const novasTarefas = tarefas.map((tarefa) => {
+      if (tarefa.id === id) {
+        return {
+          ...tarefa,
+          concluida: !tarefa.concluida,
+        };
+      }
+      return tarefa;
+    });
+
+    setTarefas(novasTarefas);
+  }
+
+  // Remover tarefa
+  function removerTarefa(id) {
+    const novasTarefas = tarefas.filter(
+      (tarefa) => tarefa.id !== id
+    );
+
+    setTarefas(novasTarefas);
+  }
+
+  // Salvar edição
+  function salvarEdicao(id) {
+    const novasTarefas = tarefas.map((tarefa) => {
+      if (tarefa.id === id) {
+        return {
+          ...tarefa,
+          texto: textoEditado,
+        };
+      }
+      return tarefa;
+    });
+
+    setTarefas(novasTarefas);
+    setEditandoId(null);
+  }
+
+  return (
+    <div style={styles.container}>
+      <div style={styles.card}>
+        <h1 style={styles.titulo}>Lista de Tarefas</h1>
+
+        {/* Input */}
+        <div style={styles.inputArea}>
+          <input
+            type="text"
+            placeholder="Digite uma tarefa..."
+            value={novaTarefa}
+            onChange={(e) =>
+              setNovaTarefa(e.target.value)
+            }
+            style={styles.input}
+          />
+
+          <button
+            onClick={adicionarTarefa}
+            style={styles.addButton}
+          >
+            <PlusCircle size={28} />
+          </button>
+        </div>
+
+        {/* Lista */}
+        <div>
+          {tarefas.map((tarefa) => (
+            <div
+              key={tarefa.id}
+              style={{
+                ...styles.tarefaCard,
+                backgroundColor: tarefa.concluida
+                  ? "#d4f8d4"
+                  : "#f5f5f5",
+              }}
+            >
+              <div style={{ flex: 1 }}>
+                {editandoId === tarefa.id ? (
+                  <input
+                    type="text"
+                    value={textoEditado}
+                    onChange={(e) =>
+                      setTextoEditado(e.target.value)
+                    }
+                    style={styles.editInput}
+                  />
+                ) : (
+                  <p
+                    style={{
+                      ...styles.textoTarefa,
+                      textDecoration:
+                        tarefa.concluida
+                          ? "line-through"
+                          : "none",
+                      color: tarefa.concluida
+                        ? "#777"
+                        : "#222",
+                    }}
+                  >
+                    {tarefa.texto}
+                  </p>
+                )}
+              </div>
+
+              <div style={styles.buttonsArea}>
+                {/* Concluir */}
+                <button
+                  onClick={() =>
+                    concluirTarefa(tarefa.id)
+                  }
+                  style={{
+                    ...styles.iconButton,
+                    backgroundColor: "#22c55e",
+                  }}
+                >
+                  <CheckCircle size={20} />
+                </button>
+
+                {/* Editar */}
+                {editandoId === tarefa.id ? (
+                  <button
+                    onClick={() =>
+                      salvarEdicao(tarefa.id)
+                    }
+                    style={{
+                      ...styles.saveButton,
+                    }}
+                  >
+                    Salvar
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => {
+                      setEditandoId(tarefa.id);
+                      setTextoEditado(tarefa.texto);
+                    }}
+                    style={{
+                      ...styles.iconButton,
+                      backgroundColor: "#facc15",
+                    }}
+                  >
+                    <Pencil size={20} />
+                  </button>
+                )}
+
+                {/* Remover */}
+                <button
+                  onClick={() =>
+                    removerTarefa(tarefa.id)
+                  }
+                  style={{
+                    ...styles.iconButton,
+                    backgroundColor: "#ef4444",
+                  }}
+                >
+                  <Trash2 size={20} />
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Total */}
+        <div style={styles.total}>
+          Total de tarefas: {tarefas.length}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// CSS em JavaScript
+const styles = {
+  container: {
+    minHeight: "100vh",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    background:
+      "linear-gradient(to right, #4facfe, #00f2fe)",
+    padding: "20px",
+    fontFamily: "Arial",
+  },
+
+  card: {
+    width: "100%",
+    maxWidth: "600px",
+    backgroundColor: "white",
+    borderRadius: "25px",
+    padding: "30px",
+    boxShadow: "0 10px 30px rgba(0,0,0,0.2)",
+  },
+
+  titulo: {
+    textAlign: "center",
+    color: "#06b6d4",
+    marginBottom: "25px",
+    fontSize: "38px",
+  },
+
+  inputArea: {
+    display: "flex",
+    gap: "10px",
+    marginBottom: "25px",
+  },
+
+  input: {
+    flex: 1,
+    padding: "14px",
+    borderRadius: "15px",
+    border: "2px solid #67e8f9",
+    outline: "none",
+    fontSize: "16px",
+  },
+
+  addButton: {
+    backgroundColor: "#06b6d4",
+    border: "none",
+    color: "white",
+    width: "60px",
+    borderRadius: "15px",
+    cursor: "pointer",
+    transition: "0.3s",
+  },
+
+  tarefaCard: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: "18px",
+    borderRadius: "18px",
+    marginBottom: "15px",
+    boxShadow: "0 5px 15px rgba(0,0,0,0.08)",
+  },
+
+  textoTarefa: {
+    fontSize: "18px",
+    fontWeight: "500",
+  },
+
+  buttonsArea: {
+    display: "flex",
+    gap: "10px",
+    marginLeft: "15px",
+  },
+
+  iconButton: {
+    border: "none",
+    color: "white",
+    width: "42px",
+    height: "42px",
+    borderRadius: "12px",
+    cursor: "pointer",
+  },
+
+  saveButton: {
+    backgroundColor: "#3b82f6",
+    border: "none",
+    color: "white",
+    padding: "10px 14px",
+    borderRadius: "10px",
+    cursor: "pointer",
+  },
+
+  editInput: {
+    width: "100%",
+    padding: "10px",
+    borderRadius: "10px",
+    border: "1px solid #ccc",
+  },
+
+  total: {
+    textAlign: "center",
+    marginTop: "20px",
+    color: "#555",
+    fontWeight: "bold",
+    fontSize: "17px",
+  },
+};
